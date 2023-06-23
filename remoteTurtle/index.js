@@ -39,7 +39,6 @@ function makeid(length) {
 
 
 
-
 async function runTurtleCommands(varTurtleId,code){
   //each instruction has 3 stages
   //sendingInstruction - will wait for other process to tell turtle what todo

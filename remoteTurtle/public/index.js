@@ -74,7 +74,13 @@ async function moveTurtle(movement){
 document.getElementById("refuel-key").addEventListener("click", () => {runCode("turtle.refuel(1)")}, false);
 document.getElementById("turtle-id-select").addEventListener("change", () => {turtleId = document.getElementById("turtle-id-select").value}, false);
 
-
+function updateProgress(updateValue){
+  if (updateValue === "delete"){
+    document.getElementById("loaderBackground").remove()
+  }else{
+    document.getElementById("loaderText").textContent = updateValue
+  }
+}
 
 
 document.getElementById("code-input").addEventListener("keydown", keyData => {
@@ -210,6 +216,8 @@ async function updateTurtle(turtleIdToUpdate) {
   }
 }
 
+updateProgress("getting turtles")
+
 //add turtles
 const turtlesConnectedRequest = await fetch("./getTurtlesConnected?" + new URLSearchParams({}));
 if(turtlesConnectedRequest.ok){
@@ -219,7 +227,7 @@ if(turtlesConnectedRequest.ok){
     alert("please connect turtle/s to use");
     location.reload();
   }
-  
+
   const turtleSelectFeild = document.getElementById("turtle-id-select");
   for (const turtleAdding in turtlesConnected){
     var option = document.createElement("option");
@@ -317,6 +325,7 @@ document.addEventListener('keydown', (event) => {
   
 });
 
+updateProgress("downloading world data")
 
 const blockPositionsRequest = await fetch("./updateInfo?" + new URLSearchParams({
   info: "worldDataBlockPositions"
@@ -324,13 +333,13 @@ const blockPositionsRequest = await fetch("./updateInfo?" + new URLSearchParams(
 if(blockPositionsRequest.ok){
   const jsonData = await blockPositionsRequest.json();
   for (const block of jsonData) {
-    cubeUpdateRenderBlock(block.x,block.y,block.z);
+    await cubeUpdateRenderBlock(block.x,block.y,block.z);
   }
 }
 updateTurtle(turtleId)
 
 
-
+updateProgress("delete")
 
 function animate() {
     requestAnimationFrame( animate );

@@ -95,3 +95,7 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - add a loading screen to the website
  - move code over to typescript
  - more stuff should be put into the genreal update api call
+ - look at if it is worth using built in cc twaeked computer id instead of using file saved on drive
+ - orbit camera around current turtle selected
+ - red outline on currently selected turtle
+ - find a way to bring back parral downloads and still have loading screen
