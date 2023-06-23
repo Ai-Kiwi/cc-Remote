@@ -1,12 +1,12 @@
-#CC:Remote
+# CC:Remote
 CC:Remote is an experimental program used to remotely control and manage CC:Tweaked turtles all from a simple to use 3d ui on your computer. CC:Remote is a project that I have been wanting to create for a long time now, however have only recently got around to making.
 
-##features
+## features
  - high reliability.
  - flexibility.
  - little to no reliance on clients (turtles) instead mostly all handled by the server.
 
-##contributing
+## contributing
 Contributions are always welcome, no matter how small, such as fixing a minor typo, or a minor bug report or as large as a complete recode of the majority of the codebase. Some of the ways you could contribute include:
  - filing a bug report on the issues tab.
  - suggesting ideas for things that could be changed.
@@ -17,7 +17,7 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
 
 
 
-##Todo
+## Todo
  - code should be cleaned up alot
  - - more things should be put in different funcions
  - - cleaner code
