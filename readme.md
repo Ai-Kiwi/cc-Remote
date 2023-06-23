@@ -1,7 +1,7 @@
 # CC:Remote
 CC:Remote is an experimental program used to remotely control and manage CC:Tweaked turtles all from a simple to use 3d ui on your computer. CC:Remote is a project that I have been wanting to create for a long time now, however have only recently got around to making.
 
-https://github.com/Ai-Kiwi/cc-Remote/assets/66819523/6029df90-a257-44c2-b2d3-081e390c9a31
+https://github.com/Ai-Kiwi/cc-Remote/assets/66819523/fa40bdf9-f57b-4124-a028-d3f17308a3f5
 
 ## features
  - high reliability.
