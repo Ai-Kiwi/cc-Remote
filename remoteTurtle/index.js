@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const fs = require('fs');
 var expressWs = require('express-ws')(app);
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -15,6 +16,34 @@ app.listen(port, () => {
 
 var worldData = {};
 var turtleCommandsToRun = {};
+var turtleData = {};
+
+async function saveDataToFile(){
+  try{
+  fs.writeFileSync('./data.json',JSON.stringify({
+    worldData: worldData,
+    turtleCommandsToRun: turtleCommandsToRun,
+    turtleData : turtleData
+  }));
+  }catch(error){
+    console.log(error);
+  }
+}
+//read data from file and output
+try{
+  var data = fs.readFileSync('./data.json',{ encoding: 'utf8', flag: 'r' });
+  data = JSON.parse(data);
+  console.table(data)
+
+  if (data.worldData !== undefined){worldData = data.worldData}
+  if (data.turtleCommandsToRun !== undefined){turtleCommandsToRun = data.turtleCommandsToRun}
+  if (data.turtleData !== undefined){turtleData = data.turtleData}
+
+}catch(error){
+  console.log(error)
+}
+
+
 
 //only really used for local devlopment
 const minTurtleLatency = 0
@@ -95,14 +124,11 @@ async function runTurtleCommands(varTurtleId,code){
   //console.log("returned : " + returnData.returnValue + " for " + requestId)
   turtleCommandsToRun[turtleId].splice(itemIndex, 1);
   
+  saveDataToFile()
   return returnData
 
 }
 
-
-
-//worldData["0,0,0"] = "minecraft:grass_block";
-turtleData = {};
 app.get('/blockData', (req, res) => {
   try{
     const x = req.query.x;
@@ -220,7 +246,7 @@ async function updateBlocksAroundTurtle(turtleId){
       delete worldData[turtlePos.x.toString() + "," + (turtlePos.y-1).toString() + "," + turtlePos.z.toString()];
     }
 
-    console.table(worldData)
+    saveDataToFile()
 }
 
 
@@ -290,7 +316,7 @@ app.post('/moveTurtle', async (req, res) => {
 
     await updateBlocksAroundTurtle(turtleId);
 
-
+    saveDataToFile()
     res.send(returnData);
 
 
