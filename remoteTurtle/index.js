@@ -33,7 +33,7 @@ async function saveDataToFile(){
 try{
   var data = fs.readFileSync('./data.json',{ encoding: 'utf8', flag: 'r' });
   data = JSON.parse(data);
-  console.table(data)
+  //console.table(data)
 
   if (data.worldData !== undefined){worldData = data.worldData}
   if (data.turtleCommandsToRun !== undefined){turtleCommandsToRun = data.turtleCommandsToRun}
@@ -225,7 +225,7 @@ async function updateBlocksAroundTurtle(turtleId){
 
     const forwardDirOffset = rotationToPos(outputDownBlockData.turtleData.direction);
 
-    console.table(outputDownBlockData)
+    //console.table(outputDownBlockData)
 
     //up
     if (outputDownBlockData.returnValue[0][0]===true) {
@@ -349,7 +349,7 @@ app.get('/getTurtlesConnected', async (req, res) => {
       turtlesConnected.push(item);
     }
     
-    console.log(turtlesConnected);
+    //console.log(turtlesConnected);
     res.send(JSON.stringify(turtlesConnected));
 
   }catch(error){
@@ -365,7 +365,7 @@ app.ws('/', function(ws, req) {
       const turtleMessageData = JSON.parse(msg);
       var whatTodoOnTurtle = null;
       const turtleId = turtleMessageData.turtleId.toString();
-      console.log("<= " + msg);
+      //console.log("<= " + msg);
       
       if (turtleData[turtleId] === undefined) {
         turtleData[turtleId] = {

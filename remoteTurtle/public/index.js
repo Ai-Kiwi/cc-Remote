@@ -325,14 +325,18 @@ document.addEventListener('keydown', (event) => {
   
 });
 
-updateProgress("downloading world data")
+updateProgress("getting world data")
 
 const blockPositionsRequest = await fetch("./updateInfo?" + new URLSearchParams({
   info: "worldDataBlockPositions"
 }));
 if(blockPositionsRequest.ok){
   const jsonData = await blockPositionsRequest.json();
+  var blockUpto = 0
+
   for (const block of jsonData) {
+    blockUpto++
+    updateProgress("getting world data " + (Math.round(100 * ( blockUpto / jsonData.length )) ).toString() + "%")
     await cubeUpdateRenderBlock(block.x,block.y,block.z);
   }
 }
