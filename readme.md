@@ -20,6 +20,9 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
 
 
 ## Todo
+ - more fancy ui update
+ - - add 3d background
+ - - nicer button
  - code should be cleaned up alot
  - - more things should be put in different funcions
  - - cleaner code
@@ -28,38 +31,33 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - add when you hold mouse over a block display it
  - add location and direction saving and loading information for the turtle so it can save it after restart.
  - client software should retry and start a new connection instead of restart whole computer on websocket failure.
- - there should be images and videos showing this project in action.
  - look into why in the website the X cord position has to be swapped to make blocks appear in the right direction.
  add a fuel display to the screen. Along with a button to refuel.
  - design a custom logo for this project, add to the website as favicon as well as github page.
- - make the arrow for displaying where the turtle is auto update when you refresh/load the website.
- - finish support for more then 1 turtle being controllable at once.
  - replace the arrow for the turtle with a 3d model of turtle.
- - look into ways to possibly lower latency of messaging standards for the turtle.
  - look into smarter ways for websites to get data on all the different blocks there are instead of individual http requests.
- - when the turtle is moving really fast sometimes blocks don't update on the website end, but do on the server end.
- - improve the queueing system to make sure to play them in order of when the command was sent instead of just randomly.
- - code the system for saving block data to a file/database, should also store information like where turtles are and what not.
  - add a system to move the turtle without really moving turtle incase they go out of sync and isn't where you think it is.
  - add a custom code input field where you can add custom code that runs in the background, should also have a system that keeps the server up to date with when it moves and what it's x y and z pos is along with blocks around it.
  - website should have a mode to make blocks transparent so you can see in caves and what not.
- - custom render engine for blocks, reads minecraft database files and extracts images, supports custom blocks like fences, as well as supporting blockstates for things like when redstone is active as well as rotation.
- - smart system for rendering blocks that only renders the faces that you can see, that way it lowers by a lot the amount of triangles being display'd and stops lag, worth looking into as well if this is really the best way todo it or if three.js has a better way of doing this. 
- - possibly might add support for rendering entities so it can be supported by some peripherals.
+ - render engine rewrite
+ - - custom render engine for blocks, reads minecraft database files and extracts images, supports custom blocks like fences, as well as supporting blockstates for things like when redstone is active as well as rotation.
+ - - smart system for rendering blocks that only renders the faces that you can see, that way it lowers by a lot the amount of triangles being display'd and stops lag, worth looking into as well if this is really the best way todo it or if three.js has a better way of doing this. 
+ - - possibly might add support for rendering entities so it can be supported by some peripherals.
  - more edgecase catching on the client side (turtle), including things like when server has http and/or websockets disabled.
  - feature for turtle to tell server where it really is based on gps, that way there is no relying on this crappy system for getting location.
- - peripheral swap, if there are more than 2 peripherals it should know how to swap them for which it needs while it is running. 
- - system to add turtle, requires you to set where it is relative to other turtles so that way it starts in sync.
  - replicate option that goes through, crafts a new turtle and sets it up for you so you don't have to do it.
  - improve security of the system as there is not really much at the moment.
  - - maybe could do turtle requests AES key with RSA code for server and server gives aes code and they talk using that.
  - - also should secure website end as that is accessible by anyone atm that can access the port it is hosted on, which is the same one as websocket. 
  - auto update client if it is running out of date firmware. Most likely done by having server on start calculate sha256 hash of firmware then ask client what the local saved hash is to see if it is out of date then send the update dated over most likely websocket connection, could and most likely will do get request though. Could also do this for server as well by looking on github page and prompting the user it is out of date.
- - look into how i could improve the system for when the server asks for a return value that doesn't exist, as this is a common issue when turtles restart but the server does not.
- - add support for some modded peripheral's.
+ - add support for some peripheral's.
  - - peripheral that gets where blocks from advanced peripherals  
  - - peripheral that gets where ores are from advanced peripherals
  - - really just most of advanced peripherals stuff would be nice to add support for.
+ - - modem peripheral so can interact with other computers
+ - - disk peripheral
+ - - display peripheral
+ - - speaker peripheral
  - add support for managing and controlling inventories, such as taking items in and out of chests or other turtles.
  - - also should support crafting items.
  - custom code idea's.
@@ -67,32 +65,22 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - - - should support all the different things needed inorder to remake a turtle.
  - - - should be able to strip mine knowing what it wants and best ore level, should be able to mine a whole ore vein and then return to where it was.
  - - - maybe even a system that gets world seed to know where the closet ores are.
- - create better ui for website buttons.
  - if failed to move because of no fuel display message about that
- - turtle move queue should be orderd by date to make more efficient
- - change turtle system so that it handles garbage collection stuff when idle instead of right after running command
- - overhall movement verify system.
- - save block data after server shutdown
- - add system for handling more then one turtle
- - add 3d model for turtle
- - add 3d background
  - add on screen popup's for less important things that way I dont have todo full screen annoying popup's 
  - add logo for program
- - smart move mode that turns as well for displaying where blocks are all around it
  - progress bar for movements that are happening so you can get updates
- - setting to bring back advanced log tracking
+ - setting to controll what level of logging (ideally a .env file or something of the sort)
  - move arrow back a tad
  - add block to arrow so its clear of distence to and what not
  - ways to resync turtle after desync
  - turtle should not stop terminate command
  - holding mouse over blocks should say what block it is
- - inventory
+ - inventory controll of turtle
  - new ui for turtle
  - - server latancy
  - - debug tab
  - move system for storing block cords over to arrays
  - after refueling instently update fuel level (same for movement)
- - add a loading screen to the website
  - move code over to typescript
  - more stuff should be put into the genreal update api call
  - look at if it is worth using built in cc twaeked computer id instead of using file saved on drive
