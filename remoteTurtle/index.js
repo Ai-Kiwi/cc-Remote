@@ -93,7 +93,7 @@ async function runTurtleCommands(varTurtleId,code){
   const itemIndex = turtleCommandsToRun[turtleId].findIndex(item => item.requestId === requestId); //get the item index
   var returnData = turtleCommandsToRun[turtleId][itemIndex].response;
   returnData.turtleData = turtleCommandsToRun[turtleId][itemIndex].turtleData;
-  console.log("returned : " + returnData.returnValue + " for " + requestId)
+  //console.log("returned : " + returnData.returnValue + " for " + requestId)
   turtleCommandsToRun[turtleId].splice(itemIndex, 1);
   
   return returnData
@@ -104,9 +104,6 @@ async function runTurtleCommands(varTurtleId,code){
 
 //worldData["0,0,0"] = "minecraft:grass_block";
 turtleData = {};
-turtleData["1"] = {};
-turtleData["1"].position = {"x":0,"y":0,"z":0};
-turtleData["1"].direction = 0;
 app.get('/blockData', (req, res) => {
   try{
     const x = req.query.x;
@@ -271,9 +268,9 @@ app.post('/moveTurtle', async (req, res) => {
     }else if (movement === "right"){
       returnData = await runTurtleCommands(turtleId,"return turtle.turnRight()");
       if (returnData.encounteredError === false && returnData.returnValue === true) {
-        turtleData["1"].direction += 1;
-        if (turtleData["1"].direction >= 4){
-          turtleData["1"].direction = 0
+        turtleData[turtleId].direction += 1;
+        if (turtleData[turtleId].direction >= 4){
+          turtleData[turtleId].direction = 0
         }
       }
       forwardDirOffset = rotationToPos(turtleData[turtleId].direction);
@@ -318,22 +315,44 @@ app.get('/updateBlocksAroundTurtle', async (req, res) => {
   }
 });
 
+app.get('/getTurtlesConnected', async (req, res) => {
+  try{
+    var turtlesConnected = [];
 
+    console.table(turtleData);
+    for (const item in turtleData) {
+      turtlesConnected.push(item);
+    }
+    
+    console.log(turtlesConnected);
+    res.send(JSON.stringify(turtlesConnected));
+
+  }catch(error){
+    console.log(error);
+    res.status(500);
+  }
+});
 
 app.ws('/', function(ws, req) {
   
   ws.on('message', async function(msg) {
     try{
-      await sleep(10)
       const turtleMessageData = JSON.parse(msg);
       var whatTodoOnTurtle = null;
       const turtleId = turtleMessageData.turtleId.toString();
       console.log("<= " + msg);
-      //console.table(turtleCommandsToRun[turtleId])
       
+      if (turtleData[turtleId] === undefined) {
+        turtleData[turtleId] = {
+          "position": {"x":0,"y":0,"z":0},
+          "direction": 0
+        };
+      }
+
+
       //sole use of this is for easier debugging
       function sendResponse(response){
-        console.log("=> " + response)
+        //console.log("=> " + response)
         setTimeout(()=> {
           ws.send(response);
         },minTurtleLatency);
@@ -380,7 +399,6 @@ app.ws('/', function(ws, req) {
 
                 return
               }
-              console.log("yeah just gonna wait")
             }
           }
         }

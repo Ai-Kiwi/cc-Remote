@@ -23,6 +23,7 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - - cleaner code
  - - split into different files for different things
  - support should be added for remotely editing files like in cloudcatcher, it should also allow you to run code while the remote control is running in the background allowing for you to use it while having other things running, this would be extra helpful as it would let you check on how programs are doing.
+ - add when you hold mouse over a block display it
  - add location and direction saving and loading information for the turtle so it can save it after restart.
  - client software should retry and start a new connection instead of restart whole computer on websocket failure.
  - there should be images and videos showing this project in action.
@@ -89,3 +90,6 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - - debug tab
  - move system for storing block cords over to arrays
  - after refueling instently update fuel level (same for movement)
+ - add a loading screen to the website
+ - move code over to typescript
+ - more stuff should be put into the genreal update api call
