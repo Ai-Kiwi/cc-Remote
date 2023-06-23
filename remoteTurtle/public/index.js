@@ -16,16 +16,8 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.getElementById('render-window').appendChild(renderer.domElement);
 
 //will be controllable later when i get around to it
-const turtleId = "1"
+var turtleId = null
 var turtleData = {};
-turtleData[turtleId] = {};
-turtleData[turtleId].position = {x:0,y:0,z:0};
-turtleData[turtleId].direction = 0;
-const dir = new THREE.Vector3( 1, 0, 0 );
-const origin = new THREE.Vector3( 0, 0, 0 );
-const turtleObj = new THREE.ArrowHelper( dir, origin, 1, 0x000000, 0.5, 0.5 );
-turtleData[turtleId].turtleObject = turtleObj;
-scene.add( turtleObj );
 
 var codeToRun = "";
 var blockCache = {};
@@ -70,7 +62,7 @@ async function moveTurtle(movement){
       "Content-type": "application/json; charset=UTF-8"
     }
   });
-  updateTurtle();
+  updateTurtle(turtleId);
   return;
 }
 
@@ -80,7 +72,7 @@ async function moveTurtle(movement){
 //document.getElementById("right-key").addEventListener("click", () => {runCode("turtle.turnRight()")}, false);
 
 document.getElementById("refuel-key").addEventListener("click", () => {runCode("turtle.refuel(1)")}, false);
-
+document.getElementById("turtle-id-select").addEventListener("change", () => {turtleId = document.getElementById("turtle-id-select").value}, false);
 
 
 
@@ -97,16 +89,6 @@ const controls = new OrbitControls( camera, renderer.domElement );
 camera.position.set( 2, 2, 2 );
 controls.update();
 
-//async function NewGetBlockData(x,y,z,fullBlockName){
-//  //get rid of starting minecraft:
-//  //will be recoded to support modded blocks sometime
-//  var blockName = fullBlockName.split(":")[1];
-//
-//  //get the blockstate data
-//  var blockstateJsonData = await fetch(`./mc/models/block/${blockName}.json`);
-//  blockstateJsonData = await blockstateJsonData.json();
-//}
-
 
 async function cubeUpdateRenderBlock(x,y,z){
   const response = await fetch("./blockData?" + new URLSearchParams({
@@ -115,12 +97,10 @@ async function cubeUpdateRenderBlock(x,y,z){
     z: z,
   }));
 
-  console.table([x,y,z]);
   
   if(response.ok){
 
     const jsonData = await response.json();
-    console.log(jsonData.name);
 
     //remote it if it is air
     if(jsonData.name === "minecraft:air"){
@@ -147,12 +127,8 @@ async function cubeUpdateRenderBlock(x,y,z){
     }
 
     //if it already exists leave it
-    //console.log(typeof blockCache[`${x},${y},${z}`].shapes);
     if (blockCache[`${x},${y},${z}`].shapes.length >= 1){
       return;
-      //temp for when it moves to a system that has tags and what not
-      //scene.remove(blockCache[`${x},${y},${z}`].shapes[0]);
-      //delete blockCache[`${x},${y},${z}`].shapes[0];
     }
     
 
@@ -164,11 +140,7 @@ async function cubeUpdateRenderBlock(x,y,z){
     scene.add( cube );
     renderer.render(scene, camera);
 
-
     blockCache[`${x},${y},${z}`].shapes.push(cube);
-    console.log(blockCache);
-    
-
   }
 }
 
@@ -185,29 +157,25 @@ async function updateBlocksAroundTurtle(){
   await cubeUpdateRenderBlock(turtleData[turtleId].position.x,turtleData[turtleId].position.y,turtleData[turtleId].position.z-1);
   await cubeUpdateRenderBlock(turtleData[turtleId].position.x+1,turtleData[turtleId].position.y,turtleData[turtleId].position.z);
   await cubeUpdateRenderBlock(turtleData[turtleId].position.x-1,turtleData[turtleId].position.y,turtleData[turtleId].position.z);
-  
-
 }
 
 
-async function updateTurtle() {
+async function updateTurtle(turtleIdToUpdate) {
   //get updated turtle data
   const response = await fetch("./updateInfo?" + new URLSearchParams({
     info: "turtleData"
   }));
   if(response.ok){
     const jsonData = await response.json();
-    console.log(jsonData);
-    const receivedTurtleData = jsonData[turtleId];
-    console.log(receivedTurtleData);
+    const receivedTurtleData = jsonData[turtleIdToUpdate];
 
-    if (turtleData[turtleId] == undefined){
-      turtleData[turtleId] = {};
+    if (turtleData[turtleIdToUpdate] == undefined){
+      turtleData[turtleIdToUpdate] = {};
     }
 
 
-    turtleData[turtleId].position = receivedTurtleData.position;
-    turtleData[turtleId].direction = receivedTurtleData.direction;
+    turtleData[turtleIdToUpdate].position = receivedTurtleData.position;
+    turtleData[turtleIdToUpdate].direction = receivedTurtleData.direction;
 
 
 
@@ -220,190 +188,75 @@ async function updateTurtle() {
     await cubeUpdateRenderBlock(receivedTurtleData.position.x+1,receivedTurtleData.position.y,receivedTurtleData.position.z);
     await cubeUpdateRenderBlock(receivedTurtleData.position.x-1,receivedTurtleData.position.y,receivedTurtleData.position.z);
     
-    turtleData[turtleId].turtleObject.position.y = receivedTurtleData.position.y;
-    turtleData[turtleId].turtleObject.position.x = receivedTurtleData.position.x*-1;
-    turtleData[turtleId].turtleObject.position.z = receivedTurtleData.position.z;
+    turtleData[turtleIdToUpdate].turtleObject.position.y = receivedTurtleData.position.y;
+    turtleData[turtleIdToUpdate].turtleObject.position.x = receivedTurtleData.position.x*-1;
+    turtleData[turtleIdToUpdate].turtleObject.position.z = receivedTurtleData.position.z;
 
     //update player arrow
     var offsetX = 0;
     var offsetZ = 0;
-    if (turtleData[turtleId].direction === 0){ //north
+    if (turtleData[turtleIdToUpdate].direction === 0){ //north
       offsetZ = 1;
-    }else if (turtleData[turtleId].direction === 1){ //east
+    }else if (turtleData[turtleIdToUpdate].direction === 1){ //east
       offsetX = -1;
-    }else if (turtleData[turtleId].direction === 2){ //south
+    }else if (turtleData[turtleIdToUpdate].direction === 2){ //south
       offsetZ = -1;
-    }else if (turtleData[turtleId].direction === 3){ // west
+    }else if (turtleData[turtleIdToUpdate].direction === 3){ // west
       offsetX = 1;
     }
 
     const dir = new THREE.Vector3( offsetX, 0, offsetZ );
-    turtleData[turtleId].turtleObject.setDirection(dir);
+    turtleData[turtleIdToUpdate].turtleObject.setDirection(dir);
   }
 }
 
+//add turtles
+const turtlesConnectedRequest = await fetch("./getTurtlesConnected?" + new URLSearchParams({}));
+if(turtlesConnectedRequest.ok){
+  const turtlesConnected = await turtlesConnectedRequest.json();
+  //make sure there are turtles connected
+  if (turtlesConnected.length == 0){
+    alert("please connect turtle/s to use");
+    location.reload();
+  }
+  
+  const turtleSelectFeild = document.getElementById("turtle-id-select");
+  for (const turtleAdding in turtlesConnected){
+    var option = document.createElement("option");
+    const turtleAddingId = turtlesConnected[turtleAdding]
+    option.value = turtleAddingId;
+    option.text = turtleAddingId;
+    turtleSelectFeild.appendChild(option);
 
-//all the stuff here is no being used as it is being recoded from scratch, this was a attempt to render based on block images but is not done yet will be done later.
+    //create 3d model for it
+    turtleData[turtleAddingId] = {};
+    turtleData[turtleAddingId].position = {x:0,y:0,z:0};
+    turtleData[turtleAddingId].direction = 0;
+    const dir = new THREE.Vector3( 1, 0, 0 );
+    const origin = new THREE.Vector3( 0, 0, 0 );
+    const turtleObj = new THREE.ArrowHelper( dir, origin, 1, 0x000000, 0.5, 0.5 );
+    turtleData[turtleAddingId].turtleObject = turtleObj;
+    scene.add( turtleObj );
 
-
-//function drawFaceOfCube(textureName,xPos,Ypos,zPos,xRot,yRot,zRot) {
-//    //covert rotastions from degrees to radians as who uses radians, well really everyone but not me so im to stupid to use them.
-//    let xRotRadian = xRot * (Math.PI/180);
-//    let yRotRadian = yRot * (Math.PI/180);
-//    let zRotRadian = zRot * (Math.PI/180);
-//
-//    const geometry = new THREE.PlaneGeometry( 1, 1 );
-//    const texture = new THREE.TextureLoader().load( './mc/textures/block/' + textureName);
-//    texture.magFilter = THREE.NearestFilter;
-//    texture.minFilter = THREE.NearestFilter;
-//    const material = new THREE.MeshBasicMaterial( { map: texture } );
-//    //const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.SingleSide} );
-//    const plane = new THREE.Mesh( geometry, material );
-//    plane.position.set(xPos,Ypos,zPos)
-//    plane.rotation.set(xRotRadian,yRotRadian,zRotRadian)
-//    scene.add( plane );
-//    return plane;
-//}
-//
-//async function getBlockData(blockName) {
-//  //this system is currently via simple, right now only supports getting block data
-//  //
-//  //if the block is not a normal block it will return null
-//  try{
-//    var blockSideData = {}
-//
-//    var blockJsonData = await fetch(`./mc/models/block/${blockName}.json`)
-//    blockJsonData = await blockJsonData.json()
-//
-//    var cubeTypeJsonName = blockJsonData.parent;
-//    cubeTypeJsonName = cubeTypeJsonName.split('/')[1]; // gets value after last slash
-//    
-//    var cubeTypeJsonData = await fetch(`./mc/models/block/${cubeTypeJsonName}.json`)
-//    cubeTypeJsonData = await cubeTypeJsonData.json()
-//
-//
-//    
-//    //if (cubeTypeJsonName === "cube_all"){
-//      
-//      for(const texture in blockJsonData.textures){
-//        const value = blockJsonData.textures[texture];
-//        if(value == ""){
-//        }else{
-//          blockSideData["#" + texture] = value;
-//        }
-//
-//      }
-//
-//      function getSideValue(nameValue){
-//        const varForSide = cubeTypeJsonData.textures[nameValue];
-//        var value = blockSideData[varForSide];
-//        if (value === undefined) {
-//          value = blockSideData["#all"];
-//        }
-//        
-//        var justname = value.split('/')[1];
-//
-//        return justname
-//      }
-//
-//
-//      var sides = {}
-//      sides["down"] = `${getSideValue("down")}.png`;
-//      sides["up"] = `${getSideValue("up")}.png`;
-//      sides["north"] = `${getSideValue("north")}.png`;
-//      sides["east"] = `${getSideValue("east")}.png`;
-//      sides["south"] = `${getSideValue("south")}.png`;
-//      sides["west"] = `${getSideValue("west")}.png`;
-//      return sides
-//
-//    //}else{
-//    //  
-//    //  return null;
-//    //}
-//
-//  } catch (error) {
-//    console.log(error);
-//    return null;
-//  }
-//
-//
-//}
-//
-//async function createCube(x,y,z,name) {
-//    //currently system only supports full blocks so it assumes it is a fullblock
-//    
-//    //blocksates not implemented yet
-//    //opens up model file for it 
-//    
-//    //let blockData = getData();
-//    //console.log(blockData);
-//
-//    var sides = await getBlockData(name)
-//    var cubeSideData = {}
-//
-//    const cubeOffset = 0.5
-//    //4 sides
-//    cubeSideData["west"] = drawFaceOfCube(sides["west"],(cubeOffset*-1)+x,0+y,0+z,0,-90,0)
-//    cubeSideData["south"] = drawFaceOfCube(sides["south"],0+x,0+y,cubeOffset+z,0+z,0,0)
-//    cubeSideData["east"] = drawFaceOfCube(sides["east"],cubeOffset+x,0+y,0+z,0,90,0)
-//    cubeSideData["north"] = drawFaceOfCube(sides["north"],0+x,0+y,(cubeOffset*-1)+z,0,180,0)
-//    //top and bottom
-//    cubeSideData["up"] = drawFaceOfCube(sides["up"],0+x,(cubeOffset*-1)+y,0+z,90,0,0)
-//    cubeSideData["down"] = drawFaceOfCube(sides["down"],0+x,cubeOffset+y,0+z,-90,0,0)
-//
-//    return null;
-//
-//
-//    //const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-//    //
-//    //
-//    //const cube = new THREE.Mesh( geometry, material );
-//    //cube.material.materials[4].map = newTexture;
-//    //cube.material.needsUpdate = true;
-//
-//    //cube.position.set(x,y,z)
-//    //return cube;
-//    
-//}
-
-
-
-//for (let x = -3; x < 3; x++) {
-//  for (let y = -3; y < 3; y++) {
-//    for (let z = -3; z < 3; z++) {
-//      var cubeData = await updateCubeData(x,y,z)
-//      if (cubeData === "air") {
-//        
-//      }else{
-//        console.log(cubeData);
-//        await createCube(x,y,z,cubeData);
-//      }
-//    } 
-//  }
-//}
-
-//var cubeData = await updateCubeData(0,0,0)
-//await createCube(0,0,0,cubeData);
-
-
-//await createCube(-2,0,0,"dirt")
-//await createCube(0,0,0,"acacia_log")
-//await createCube(2,0,0,"stone")
-
-
+    updateTurtle(turtleAddingId);
+  }
+  turtleId = turtlesConnected[0]
+}
 
 const turtleFuelBar = document.getElementById('turtle-fuel-bar')
 const turtleFuelBarText = document.getElementById('turtle-fuel-bar-text')
 async function updateFuelDisplay(){
+  try{ //dirty af work around for turtleId not being anything apon starting
+    const maxFuel = parseFloat(await runCode("return turtle.getFuelLimit()"));
+    const currentFuel = parseFloat(await runCode("return turtle.getFuelLevel()"));
 
 
-  const maxFuel = parseFloat(await runCode("return turtle.getFuelLimit()"));
-  const currentFuel = parseFloat(await runCode("return turtle.getFuelLevel()"));
-
-
-  turtleFuelBar.value = currentFuel;
-  turtleFuelBar.max = maxFuel;
-  turtleFuelBarText.textContent = `fuel (${currentFuel}/${maxFuel}):`
+    turtleFuelBar.value = currentFuel;
+    turtleFuelBar.max = maxFuel;
+    turtleFuelBarText.textContent = `fuel (${currentFuel}/${maxFuel}):`
+  }catch(error){
+    console.log(error)
+  }
 }
 setInterval(updateFuelDisplay, 1000);
 
@@ -465,17 +318,16 @@ document.addEventListener('keydown', (event) => {
 });
 
 
-const response = await fetch("./updateInfo?" + new URLSearchParams({
+const blockPositionsRequest = await fetch("./updateInfo?" + new URLSearchParams({
   info: "worldDataBlockPositions"
 }));
-if(response.ok){
-  const jsonData = await response.json();
+if(blockPositionsRequest.ok){
+  const jsonData = await blockPositionsRequest.json();
   for (const block of jsonData) {
     cubeUpdateRenderBlock(block.x,block.y,block.z);
-    console.log(block);
   }
 }
-updateTurtle()
+updateTurtle(turtleId)
 
 
 

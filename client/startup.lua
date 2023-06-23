@@ -1,5 +1,31 @@
 local pastInstructions = {}
-local turtleId = "1"
+local Screen = {}
+Screen.width, Screen.height = term.getSize()
+term.setCursorPos(1,Screen.height)
+
+--open file and get data about turtle
+--see if it exists
+print("getting data")
+local turtleData = {}
+if fs.exists("CCRemote.data") == true then 
+    print("found config file, reading...")
+    local file = fs.open("CCRemote.data", "r")
+    turtleData = textutils.unserialiseJSON(file.readAll())
+    file.close()
+end
+
+if turtleData.turtleId == nil then  turtleData.turtleId = tostring(math.random(1,1000)) end
+local turtleId = turtleData.turtleId
+
+
+local file = fs.open("CCRemote.data", "w")
+file.write(textutils.serialiseJSON(turtleData))
+file.close()
+for k, v in pairs(turtleData) do
+    print(tostring(k) .. " : " .. tostring(v))
+end
+
+
 
 local function createIdleResponce()
     local idleDataToSend = {}
@@ -84,16 +110,30 @@ end
 local lastMessageTime = os.epoch("local")
 
 local function connectToWebsocket()
+
+    term.setCursorPos(1,Screen.height)
+    print("connecting to server at ws://127.0.0.1:3000/")
     local ws, wsError = http.websocket("ws://127.0.0.1:3000/")
     if ws == false then
         print("failed to connect to server with error : " .. wsError)
+    else
+        print("connected to server")
     end
     
     lastMessageTime = os.epoch("local")
     ws.send(textutils.serialiseJSON(createIdleResponce()))
     while true do
+        --display ping
+        term.setCursorPos(1,1)
+        term.clearLine()
+        term.write(tostring("ping: " .. os.epoch("local") - lastMessageTime) .. "ms")
+        term.setCursorPos(1,Screen.height)
         local wsReceivedMessage = ws.receive(10)
-        print("server responded in " .. tostring(os.epoch("local") - lastMessageTime) .. "ms")
+
+        
+
+
+
         if wsReceivedMessage then
             local successRunningCode, returnResult = pcall(handleMessage, wsReceivedMessage)
             if successRunningCode == false then
