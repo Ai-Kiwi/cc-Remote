@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>CC:Remote</title>
+		<style>
+			body { 
+                margin: 0; 
+            }
+            #input-area{
+                position: absolute;
+                top: 0; /* Adjust this value to create space at the top */
+                left: 0;
+                right: 0;
+                bottom: 50px;
+            }
+            #render-window{
+                position: absolute;
+                top: 50px; /* Adjust this value to create space at the top */
+                left: 0;
+                right: 0;
+                bottom: 0px;
+                overflow: hidden;
+            }
+
+		</style>
+        <!-- Import maps polyfill -->
+        <!-- Remove this when import maps will be widely supported -->
+        <script
+            async
+            src="https://unpkg.com/es-module-shims@1.6.2/dist/es-module-shims.js"
+        ></script>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+                    "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+                    
+                }
+                
+            }
+        </script>
+
+
+	</head>
+	<body>
+
+        <div id="input-area">
+
+            <!--
+            <button id="left-key" class="moveButton">left</button>
+            <button id="forward-key" class="moveButton">forward</button>
+            <button id="right-key" class="moveButton">right</button>
+
+            <button id="up-key" class="moveButton">up</button>
+            <button id="down-key" class="moveButton">down</button>
+            -->
+            
+            
+
+
+            <label id="turtle-fuel-bar-text"  for="turtle-fuel-bar">fuel (nil/null):</label>
+            <progress id="turtle-fuel-bar" value="0" max="100"></progress>
+
+            <button id="refuel-key" class="extraButton">refuel</button>
+            
+            <br>
+    
+            <label for="code-input">Custom Code:</label>
+            <input type="text" id="code-input" value ="" size=20>
+        </div>
+
+
+
+        <div id="render-window">
+            <!-- Your three.js canvas will be rendered here -->
+            <script type="module" src="index.js"></script>
+        </div>
+        
+
+        
+        
+
+
+
+
+		
+
+
+        
+
+	</body>
+</html>
