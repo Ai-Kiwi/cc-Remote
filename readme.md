@@ -6,7 +6,7 @@ https://github.com/Ai-Kiwi/cc-Remote/assets/66819523/fa40bdf9-f57b-4124-a028-d3f
 ## features
  - high reliability.
  - flexibility.
- - multi turtle support
+ - multi turtle support.
  - little to no reliance on clients (turtles) instead mostly all handled by the server.
 
 ## contributing
