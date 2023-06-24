@@ -4,12 +4,10 @@ const port = 3000;
 const fs = require('fs');
 var expressWs = require('express-ws')(app);
 const bodyParser = require('body-parser');
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(express.static('public'));
-
-
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
@@ -18,11 +16,11 @@ var worldData = {};
 var turtleCommandsToRun = {};
 var turtleData = {};
 
+
 async function saveDataToFile(){
   try{
   fs.writeFileSync('./data.json',JSON.stringify({
     worldData: worldData,
-    turtleCommandsToRun: turtleCommandsToRun,
     turtleData : turtleData
   }));
   }catch(error){
@@ -36,9 +34,9 @@ try{
   //console.table(data)
 
   if (data.worldData !== undefined){worldData = data.worldData}
-  if (data.turtleCommandsToRun !== undefined){turtleCommandsToRun = data.turtleCommandsToRun}
   if (data.turtleData !== undefined){turtleData = data.turtleData}
 
+  
 }catch(error){
   console.log(error)
 }
@@ -48,10 +46,6 @@ try{
 //only really used for local devlopment
 const minTurtleLatency = 0
 
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 //codes from https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript as i am lazy af
 function makeid(length) {
@@ -129,27 +123,6 @@ async function runTurtleCommands(varTurtleId,code){
 
 }
 
-app.get('/blockData', (req, res) => {
-  try{
-    const x = req.query.x;
-    const y = req.query.y;
-    const z = req.query.z;
-
-    var returnValue = worldData[`${x},${y},${z}`]
-    if (returnValue == undefined) {
-      returnValue = "minecraft:air";
-    }
-    var returnData = {};
-    returnData.name = returnValue;
-    res.send(JSON.stringify(returnData));
-
-  }catch(error){
-    res.status(500);
-    console.log(error);
-  }
-  
-});
-
 app.get('/updateInfo', (req, res) => {
   try{
     const info = req.query.info;
@@ -165,6 +138,33 @@ app.get('/updateInfo', (req, res) => {
       }
 
       res.send(JSON.stringify(worldDataBlocks));
+    }else if(info==="blockData"){
+      const x = req.query.x;
+      const y = req.query.y;
+      const z = req.query.z;
+
+      var returnValue = worldData[`${x},${y},${z}`]
+      if (returnValue == undefined) {
+        returnValue = "minecraft:air";
+      }
+      var returnData = {};
+      returnData.name = returnValue;
+      res.send(JSON.stringify(returnData));
+
+    }else if(info==="getTurtlesConnected"){
+      var turtlesConnected = [];
+
+
+      for (const item in turtleData) {
+        turtlesConnected.push(item);
+      }
+      
+      res.send(JSON.stringify(turtlesConnected));  
+
+    }else if(info==="latestClient"){
+      res.send(fs.readFileSync("../client/startup.lua"));
+
+
     }else{
       res.status(404);
     }
@@ -184,15 +184,11 @@ app.post('/runCode', async (req, res) => {
     var returnValue = await runTurtleCommands(turtleId,code);
     res.send(JSON.stringify(returnValue));
 
-
-
-
   }catch(error){
     console.log(error);
     res.status(500);
   }
 });
-
 
 function rotationToPos(directionVariable){
   var dirVector = {"x":0,"z":0}
@@ -213,9 +209,6 @@ async function updateBlocksAroundTurtle(turtleId){
     //rn only store names as we will store more later
     var outputDownBlockData = await runTurtleCommands(turtleId, `return {{turtle.inspectUp()},{turtle.inspect()},{turtle.inspectDown()}}`);
 
-
-
-
     //this is used incase it gets out of sync with turtle pos, alot of fast movements causes this alot
     const turtlePos = {
       "x": outputDownBlockData.turtleData.position.x,
@@ -225,7 +218,6 @@ async function updateBlocksAroundTurtle(turtleId){
 
     const forwardDirOffset = rotationToPos(outputDownBlockData.turtleData.direction);
 
-    //console.table(outputDownBlockData)
 
     //up
     if (outputDownBlockData.returnValue[0][0]===true) {
@@ -249,11 +241,8 @@ async function updateBlocksAroundTurtle(turtleId){
     saveDataToFile()
 }
 
-
-
 app.post('/moveTurtle', async (req, res) => {
   try{
-    
     var turtleId = req.body.turtleId;
     var movement = req.body.movement;
 
@@ -340,30 +329,11 @@ app.get('/updateBlocksAroundTurtle', async (req, res) => {
   }
 });
 
-app.get('/getTurtlesConnected', async (req, res) => {
-  try{
-    var turtlesConnected = [];
-
-    console.table(turtleData);
-    for (const item in turtleData) {
-      turtlesConnected.push(item);
-    }
-    
-    //console.log(turtlesConnected);
-    res.send(JSON.stringify(turtlesConnected));
-
-  }catch(error){
-    console.log(error);
-    res.status(500);
-  }
-});
-
 app.ws('/', function(ws, req) {
   
   ws.on('message', async function(msg) {
     try{
       const turtleMessageData = JSON.parse(msg);
-      var whatTodoOnTurtle = null;
       const turtleId = turtleMessageData.turtleId.toString();
       //console.log("<= " + msg);
       
@@ -432,13 +402,9 @@ app.ws('/', function(ws, req) {
         "turtleId": turtleId
       }))
 
-
-    
     }catch (error){
       console.log(error);
     }
     }
   );
-
-
 });

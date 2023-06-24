@@ -30,6 +30,7 @@ async function runCode(code){
     {
       "turtleId": turtleId,
       "code": code,
+      "cacheBuster": Math.random(),
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8"
@@ -52,19 +53,29 @@ async function runCode(code){
 
 
 async function moveTurtle(movement){
-  var response = await fetch("./moveTurtle", {
-    method: "post",
-    body: JSON.stringify(
-    {
-      "turtleId": turtleId,
-      "movement": movement,
-    }),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8"
-    }
-  });
-  updateTurtle(turtleId);
-  return;
+  try{
+    console.log(turtleId);
+    
+    var response = await fetch("./moveTurtle", {
+      method: "post",
+      body: JSON.stringify(
+      {
+        "turtleId": turtleId,
+        "movement": movement,
+        "cacheBuster": Math.random(),
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    });
+    console.log("gotta update turtle now")
+    updateTurtle(turtleId);
+    console.log("walk forward")
+    return await response.json;
+
+  }catch(error){
+    console.log(error);
+  }
 }
 
 
@@ -104,15 +115,14 @@ controls.update();
 
 
 async function cubeUpdateRenderBlock(x,y,z){
-  const response = await fetch("./blockData?" + new URLSearchParams({
+  const response = await fetch("./updateInfo?" + new URLSearchParams({
+    info: "blockData",
     x: x,
     y: y,
     z: z,
+    cacheBuster: Math.random(),
   }));
-
-  
   if(response.ok){
-
     const jsonData = await response.json();
 
     //remote it if it is air
@@ -154,6 +164,11 @@ async function cubeUpdateRenderBlock(x,y,z){
     renderer.render(scene, camera);
 
     blockCache[`${x},${y},${z}`].shapes.push(cube);
+
+    return
+  }else{
+    console.log("failed to get block pos from server")
+    return
   }
 }
 
@@ -174,59 +189,69 @@ async function updateBlocksAroundTurtle(){
 
 
 async function updateTurtle(turtleIdToUpdate) {
-  //get updated turtle data
-  const response = await fetch("./updateInfo?" + new URLSearchParams({
-    info: "turtleData"
-  }));
-  if(response.ok){
-    const jsonData = await response.json();
-    const receivedTurtleData = jsonData[turtleIdToUpdate];
+  try{
+    //get updated turtle data
+    const response = await fetch("./updateInfo?" + new URLSearchParams({
+      info: "turtleData",
+      cacheBuster: Math.random(),
+    }));
+    if(response.ok){
+      const jsonData = await response.json();
+      const receivedTurtleData = jsonData[turtleIdToUpdate];
 
-    if (turtleData[turtleIdToUpdate] == undefined){
-      turtleData[turtleIdToUpdate] = {};
+      if (turtleData[turtleIdToUpdate] == undefined){
+        turtleData[turtleIdToUpdate] = {};
+      }
+
+
+      turtleData[turtleIdToUpdate].position = receivedTurtleData.position;
+      turtleData[turtleIdToUpdate].direction = receivedTurtleData.direction;
+
+
+
+      //update top infront and bottom blocks turtleId
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y+1,receivedTurtleData.position.z);
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y-1,receivedTurtleData.position.z);
+      //update blocks around
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y,receivedTurtleData.position.z+1);
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y,receivedTurtleData.position.z-1);
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x+1,receivedTurtleData.position.y,receivedTurtleData.position.z);
+      await cubeUpdateRenderBlock(receivedTurtleData.position.x-1,receivedTurtleData.position.y,receivedTurtleData.position.z);
+
+      turtleData[turtleIdToUpdate].turtleObject.position.y = receivedTurtleData.position.y;
+      turtleData[turtleIdToUpdate].turtleObject.position.x = receivedTurtleData.position.x*-1;
+      turtleData[turtleIdToUpdate].turtleObject.position.z = receivedTurtleData.position.z;
+
+      //update player arrow
+      var offsetX = 0;
+      var offsetZ = 0;
+      if (turtleData[turtleIdToUpdate].direction === 0){ //north
+        offsetZ = 1;
+      }else if (turtleData[turtleIdToUpdate].direction === 1){ //east
+        offsetX = -1;
+      }else if (turtleData[turtleIdToUpdate].direction === 2){ //south
+        offsetZ = -1;
+      }else if (turtleData[turtleIdToUpdate].direction === 3){ // west
+        offsetX = 1;
+      }
+
+      const dir = new THREE.Vector3( offsetX, 0, offsetZ );
+      turtleData[turtleIdToUpdate].turtleObject.setDirection(dir);
+    }else{
+      console.log("failed to contact server to update turtle");
     }
-
-
-    turtleData[turtleIdToUpdate].position = receivedTurtleData.position;
-    turtleData[turtleIdToUpdate].direction = receivedTurtleData.direction;
-
-
-
-    //update top infront and bottom blocks turtleId
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y+1,receivedTurtleData.position.z);
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y-1,receivedTurtleData.position.z);
-    //update blocks around
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y,receivedTurtleData.position.z+1);
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x,receivedTurtleData.position.y,receivedTurtleData.position.z-1);
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x+1,receivedTurtleData.position.y,receivedTurtleData.position.z);
-    await cubeUpdateRenderBlock(receivedTurtleData.position.x-1,receivedTurtleData.position.y,receivedTurtleData.position.z);
-    
-    turtleData[turtleIdToUpdate].turtleObject.position.y = receivedTurtleData.position.y;
-    turtleData[turtleIdToUpdate].turtleObject.position.x = receivedTurtleData.position.x*-1;
-    turtleData[turtleIdToUpdate].turtleObject.position.z = receivedTurtleData.position.z;
-
-    //update player arrow
-    var offsetX = 0;
-    var offsetZ = 0;
-    if (turtleData[turtleIdToUpdate].direction === 0){ //north
-      offsetZ = 1;
-    }else if (turtleData[turtleIdToUpdate].direction === 1){ //east
-      offsetX = -1;
-    }else if (turtleData[turtleIdToUpdate].direction === 2){ //south
-      offsetZ = -1;
-    }else if (turtleData[turtleIdToUpdate].direction === 3){ // west
-      offsetX = 1;
-    }
-
-    const dir = new THREE.Vector3( offsetX, 0, offsetZ );
-    turtleData[turtleIdToUpdate].turtleObject.setDirection(dir);
+  }catch(error){
+    console.log(error);
   }
 }
 
 updateProgress("getting turtles")
 
 //add turtles
-const turtlesConnectedRequest = await fetch("./getTurtlesConnected?" + new URLSearchParams({}));
+const turtlesConnectedRequest = await fetch("./updateInfo?" + new URLSearchParams({
+  info: "getTurtlesConnected",
+  cacheBuster: Math.random(),
+}));
 if(turtlesConnectedRequest.ok){
   const turtlesConnected = await turtlesConnectedRequest.json();
   //make sure there are turtles connected
@@ -240,7 +265,7 @@ if(turtlesConnectedRequest.ok){
     var option = document.createElement("option");
     const turtleAddingId = turtlesConnected[turtleAdding]
     option.value = turtleAddingId;
-    option.text = turtleAddingId;
+    option.text = "turtle " + turtleAddingId;
     turtleSelectFeild.appendChild(option);
 
     //create 3d model for it
@@ -256,6 +281,9 @@ if(turtlesConnectedRequest.ok){
     updateTurtle(turtleAddingId);
   }
   turtleId = turtlesConnected[0]
+}else{
+  alert("failed to get turtle data")
+  location.reload()
 }
 
 const turtleFuelBar = document.getElementById('turtle-fuel-bar')
@@ -270,7 +298,7 @@ async function updateFuelDisplay(){
     turtleFuelBar.max = maxFuel;
     turtleFuelBarText.textContent = `fuel (${currentFuel}/${maxFuel}):`
   }catch(error){
-    console.log(error)
+    console.log(error);
   }
 }
 setInterval(updateFuelDisplay, 1000);
@@ -285,12 +313,15 @@ document.addEventListener('keydown', (event) => {
   if(event.key == "w"){
     //forward
     moveTurtle("forward");
+
   }else if (event.key == "s"){
     //backwards
     moveTurtle("back");
+
   }else if (event.key == "a"){
     //turn left
     moveTurtle("left");
+
   }else if (event.key == "d"){
     //turn right
     moveTurtle("right");
@@ -298,6 +329,7 @@ document.addEventListener('keydown', (event) => {
   }else if (event.key == "q"){
     //go down
     moveTurtle("down");
+
   }else if (event.key == "e"){
     //go up
     moveTurtle("up");
@@ -335,7 +367,8 @@ document.addEventListener('keydown', (event) => {
 updateProgress("getting world data")
 
 const blockPositionsRequest = await fetch("./updateInfo?" + new URLSearchParams({
-  info: "worldDataBlockPositions"
+  info: "worldDataBlockPositions",
+  cacheBuster: Math.random(),
 }));
 if(blockPositionsRequest.ok){
   const jsonData = await blockPositionsRequest.json();
@@ -346,6 +379,11 @@ if(blockPositionsRequest.ok){
     updateProgress("getting world data " + (Math.round(100 * ( blockUpto / jsonData.length )) ).toString() + "%")
     await cubeUpdateRenderBlock(block.x,block.y,block.z);
   }
+}else{
+  console.log("e")
+  alert("failed to get list of block postions")
+
+  location.reload()
 }
 updateTurtle(turtleId)
 
