@@ -20,6 +20,9 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
 
 
 ## Todo
+ - move todo over to github issues
+ - remove data.json file off github
+ - add how to install instructions
  - more fancy ui update
  - - add 3d background
  - - nicer button
