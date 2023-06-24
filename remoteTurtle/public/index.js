@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x55cee0 );
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -66,6 +67,9 @@ async function moveTurtle(movement){
   return;
 }
 
+
+
+
 //bind buttons to functions
 //document.getElementById("left-key").addEventListener("click", () => {runCode("turtle.turnLeft()")}, false);
 //document.getElementById("forward-key").addEventListener("click", () => {runCode("turtle.forward()")}, false);
@@ -83,10 +87,13 @@ function updateProgress(updateValue){
 }
 
 
-document.getElementById("code-input").addEventListener("keydown", keyData => {
-  if(keyData.code == "Enter"){
-    runCode(keyData.target.value);
-  }
+document.getElementById("run-code").addEventListener("click", () => {
+  var codeToRun = prompt("Please enter code to run", "");
+  if (codeToRun == null || person == "") {
+    alert("invaild input not running code")
+  } else {
+    runCode(codeToRun)
+  } 
 });
 
 
