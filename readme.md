@@ -20,7 +20,13 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
 
 
 ## Todo
+ - fix desync on shutdown (fixes if shutdown when movement happens)
+ - - should be custom system for on shutdown so new turtle commands can't be added
+ - - could also save commands running to file and then add hooks to it when restarted (would require run code function rewrite) 
  - move todo over to github issues
+ - improve latancy
+ - - rewrite movement function for client to possibly predict movements ahead of time and then valadate
+ - - parral functions for getting blocks nearby so less calls are made on movement
  - remove data.json file off github
  - add how to install instructions
  - more fancy ui update
@@ -52,7 +58,6 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - improve security of the system as there is not really much at the moment.
  - - maybe could do turtle requests AES key with RSA code for server and server gives aes code and they talk using that.
  - - also should secure website end as that is accessible by anyone atm that can access the port it is hosted on, which is the same one as websocket. 
- - auto update client if it is running out of date firmware. Most likely done by having server on start calculate sha256 hash of firmware then ask client what the local saved hash is to see if it is out of date then send the update dated over most likely websocket connection, could and most likely will do get request though. Could also do this for server as well by looking on github page and prompting the user it is out of date.
  - add support for some peripheral's.
  - - peripheral that gets where blocks from advanced peripherals  
  - - peripheral that gets where ores are from advanced peripherals
@@ -98,3 +103,5 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - click to controll turtle
  - break and move should have buttons to control
  - write using signs
+ - look into why having more then 1 tab open of this app causes problems
+ - pop up windows for turtles that allows you to run commands on them
