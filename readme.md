@@ -73,8 +73,8 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - add logo for program
  - progress bar for movements that are happening so you can get updates
  - setting to controll what level of logging (ideally a .env file or something of the sort)
- - move arrow back a tad
- - add block to arrow so its clear of distence to and what not
+ - move arrow back abit so it doesn't go into block infront
+ - make the arrow a arrow sticking out a block instead
  - ways to resync turtle after desync
  - turtle should not stop terminate command
  - holding mouse over blocks should say what block it is
@@ -90,3 +90,11 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
  - orbit camera around current turtle selected
  - red outline on currently selected turtle
  - find a way to bring back parral downloads and still have loading screen
+ - change turtle connected prompt to be more clear it means in past or currently not just currently.
+ - make it clear when a turtle is connected or not.
+ - convert it over from a website to be a program that it opens
+ - change color based on block
+ - add name to controlled turtle
+ - click to controll turtle
+ - break and move should have buttons to control
+ - write using signs
