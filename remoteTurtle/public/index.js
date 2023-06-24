@@ -100,7 +100,7 @@ function updateProgress(updateValue){
 
 document.getElementById("run-code").addEventListener("click", () => {
   var codeToRun = prompt("Please enter code to run", "");
-  if (codeToRun == null || person == "") {
+  if (codeToRun == null || codeToRun == "") {
     alert("invaild input not running code")
   } else {
     runCode(codeToRun)
@@ -157,7 +157,7 @@ async function cubeUpdateRenderBlock(x,y,z){
 
     //must need creating then if it has passed to here
     const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( {color: Math.random() * 0x808008 + 0x808080, transparent:true, opacity: 1} );
+    const material = new THREE.MeshBasicMaterial( {color: Math.random() * 0x808008 + 0x808080, transparent:false, opacity: 1} );
     const cube = new THREE.Mesh( geometry, material );
     cube.position.set(x*-1,y,z);
     scene.add( cube );
@@ -391,13 +391,15 @@ updateTurtle(turtleId)
 updateProgress("delete")
 
 function animate() {
-    requestAnimationFrame( animate );
+  requestAnimationFrame( animate );
 
-    //cube.rotation.x += 0.01;
-    //cube.rotation.y += 0.01;
-    //camera.position.x++;
-    controls.update();
-    renderer.render( scene, camera );
+  //cube.rotation.x += 0.01;
+  //cube.rotation.y += 0.01;
+  //camera.position.x++;
+  
+  controls.update();
+  renderer.render( scene, camera );
+  
 }
 
 animate();
