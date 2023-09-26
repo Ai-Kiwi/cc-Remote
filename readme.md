@@ -25,6 +25,7 @@ Contributions are always welcome, no matter how small, such as fixing a minor ty
    * should be custom system for on shutdown so new turtle commands can't be added
    * could also save commands running to file and then add hooks to it when restarted (would require run code function rewrite) 
  * move todo over to github issues
+ * change system for web socket (websocket makes sure messages are sent)
  * improve latancy
    * rewrite movement function for client to possibly predict movements ahead of time and then valadate
    * parral functions for getting blocks nearby so less calls are made on movement
